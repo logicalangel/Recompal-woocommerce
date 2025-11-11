@@ -19,12 +19,12 @@ delete_option('recompal_token');
 delete_option('recompal_api_consumer_key');
 
 // Delete WooCommerce API key
-$consumer_key = get_option('recompal_api_consumer_key');
-if ($consumer_key) {
+$recompal_consumer_key = get_option('recompal_api_consumer_key');
+if ($recompal_consumer_key) {
 	global $wpdb;
 	$wpdb->delete(
 		$wpdb->prefix . 'woocommerce_api_keys',
-		array('consumer_key' => $consumer_key),
+		array('consumer_key' => $recompal_consumer_key),
 		array('%s')
 	);
 }

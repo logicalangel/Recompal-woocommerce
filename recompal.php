@@ -11,7 +11,7 @@
  * Text Domain: recompal
  * Domain Path: /languages
  * Requires at least: 6.6
- * Tested up to: 6.7
+ * Tested up to: 6.8
  * Requires PHP: 7.4
  * WC requires at least: 8.0
  * WC tested up to: 9.0
@@ -25,11 +25,6 @@ defined('ABSPATH') || exit;
 // Configuration Constants
 define('RECOMPAL_API_URL', 'https://app.recompal.com/api');
 define('RECOMPAL_APP_URL', 'https://app.recompal.com');
-
-// Load plugin text domain for translations
-add_action('plugins_loaded', function() {
-    load_plugin_textdomain('recompal', false, dirname(plugin_basename(__FILE__)) . '/languages');
-});
 
 // Widget Loader
 add_action('wp_enqueue_scripts', function () {
@@ -58,7 +53,7 @@ add_filter('script_loader_tag', function ($tag, $handle, $src) {
         $firstname = esc_js($current_user->first_name ?? "Customer");
         $lastname = esc_js($current_user->last_name ?? "");
         $email = esc_js($current_user->user_email ?? "");
-        $site_url = parse_url(home_url(), PHP_URL_HOST);
+        $site_url = wp_parse_url(home_url(), PHP_URL_HOST);
         $site_id = abs(crc32($site_url));
 
         $tag = str_replace(
@@ -146,7 +141,7 @@ function recompal_send_product_webhook($product_id, $action) {
     }
 
     $jwt_token = get_option('recompal_token');
-    $site_url = parse_url(home_url(), PHP_URL_HOST);
+    $site_url = wp_parse_url(home_url(), PHP_URL_HOST);
 
     $product_data = array(
         'id' => $product->get_id(),
@@ -213,8 +208,8 @@ register_activation_hook(__FILE__, function () {
     if (!class_exists('WooCommerce')) {
         deactivate_plugins(plugin_basename(__FILE__));
         wp_die(
-            __('Recompal requires WooCommerce to be installed and active. Please install and activate WooCommerce first.', 'recompal'),
-            __('Plugin Activation Error', 'recompal'),
+            esc_html__('Recompal requires WooCommerce to be installed and active. Please install and activate WooCommerce first.', 'recompal'),
+            esc_html__('Plugin Activation Error', 'recompal'),
             array('back_link' => true)
         );
     }
@@ -244,13 +239,13 @@ register_activation_hook(__FILE__, function () {
     if (false === $inserted) {
         deactivate_plugins(plugin_basename(__FILE__));
         wp_die(
-            __('Failed to create WooCommerce API key. Please try again or contact support.', 'recompal'),
-            __('Database Error', 'recompal'),
+            esc_html__('Failed to create WooCommerce API key. Please try again or contact support.', 'recompal'),
+            esc_html__('Database Error', 'recompal'),
             array('back_link' => true)
         );
     }
 
-    $site_url = parse_url(home_url(), PHP_URL_HOST);
+    $site_url = wp_parse_url(home_url(), PHP_URL_HOST);
     $site_id = abs(crc32($site_url));
 
     $body = [
@@ -263,7 +258,7 @@ register_activation_hook(__FILE__, function () {
             'id' => $site_id,
             'name' => get_bloginfo('name'),
             'email' => get_option('admin_email'),
-            'domain' => parse_url(home_url(), PHP_URL_HOST),
+            'domain' => wp_parse_url(home_url(), PHP_URL_HOST),
             'country' => get_option('woocommerce_default_country'),
             'address1' => get_option('woocommerce_store_address'),
             'address2' => get_option('woocommerce_store_address_2'),
@@ -301,10 +296,11 @@ register_activation_hook(__FILE__, function () {
         deactivate_plugins(plugin_basename(__FILE__));
         wp_die(
             sprintf(
-                __('Cannot register shop with Recompal: %s. Please check your internet connection and try again.', 'recompal'),
+                /* translators: %s: Error message from the server */
+                esc_html__('Cannot register shop with Recompal: %s. Please check your internet connection and try again.', 'recompal'),
                 esc_html($error_message)
             ),
-            __('Registration Error', 'recompal'),
+            esc_html__('Registration Error', 'recompal'),
             array('back_link' => true)
         );
     }
@@ -320,10 +316,11 @@ register_activation_hook(__FILE__, function () {
         deactivate_plugins(plugin_basename(__FILE__));
         wp_die(
             sprintf(
-                __('Recompal server returned error (code: %d). Please try again later or contact support.', 'recompal'),
+                /* translators: %d: HTTP error code from the server */
+                esc_html__('Recompal server returned error (code: %d). Please try again later or contact support.', 'recompal'),
                 $response_code
             ),
-            __('Registration Error', 'recompal'),
+            esc_html__('Registration Error', 'recompal'),
             array('back_link' => true)
         );
     }
@@ -340,8 +337,8 @@ register_activation_hook(__FILE__, function () {
         );
         deactivate_plugins(plugin_basename(__FILE__));
         wp_die(
-            __('Invalid response from Recompal server. Please try again later or contact support.', 'recompal'),
-            __('Registration Error', 'recompal'),
+            esc_html__('Invalid response from Recompal server. Please try again later or contact support.', 'recompal'),
+            esc_html__('Registration Error', 'recompal'),
             array('back_link' => true)
         );
     }
@@ -354,18 +351,18 @@ register_activation_hook(__FILE__, function () {
 // Settings Page
 add_action('admin_menu', function () {
     add_menu_page(
-        __('Recompal', "recompal"),
-        __('Recompal', "recompal"),
+        esc_html__('Recompal', "recompal"),
+        esc_html__('Recompal', "recompal"),
         'manage_options',
         'recompal-settings',
         function () {
             // Verify user has permission
             if (!current_user_can('manage_options')) {
-                wp_die(__('You do not have sufficient permissions to access this page.', 'recompal'));
+                wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'recompal'));
             }
             
             $jwt_token = get_option('recompal_token');
-            $iframe_url = RECOMPAL_APP_URL . '/woocommerce?source=woocommerce&host=' . parse_url(home_url(), PHP_URL_HOST) . "&token=$jwt_token";
+            $iframe_url = RECOMPAL_APP_URL . '/woocommerce?source=woocommerce&host=' . wp_parse_url(home_url(), PHP_URL_HOST) . "&token=$jwt_token";
             ?>
 <div class="recompal-dashboard">
     <iframe src="<?php echo esc_url($iframe_url); ?>" style="width: 100%; height: 100vh; border: none;"
@@ -396,16 +393,16 @@ window.addEventListener('message', function(event) {
     // Add submenu pages
     add_submenu_page(
         'recompal-settings',                    // Parent slug
-        __('Appearance', 'recompal'),           // Page title
-        __('Appearance', 'recompal'),           // Menu title
+        esc_html__('Appearance', 'recompal'),           // Page title
+        esc_html__('Appearance', 'recompal'),           // Menu title
         'manage_options',                       // Capability
         'recompal-appearance',                  // Menu slug
         function () {
             if (!current_user_can('manage_options')) {
-                wp_die(__('You do not have sufficient permissions to access this page.', 'recompal'));
+                wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'recompal'));
             }
             $jwt_token = get_option('recompal_token');
-            $iframe_url = RECOMPAL_APP_URL . '/woocommerce/appearance?source=woocommerce&host=' . parse_url(home_url(), PHP_URL_HOST) . "&token=$jwt_token";
+            $iframe_url = RECOMPAL_APP_URL . '/woocommerce/appearance?source=woocommerce&host=' . wp_parse_url(home_url(), PHP_URL_HOST) . "&token=$jwt_token";
             ?>
 <div class="recompal-appearance">
     <iframe src="<?php echo esc_url($iframe_url); ?>" style="width: 100%; height: 100vh; border: none;"
@@ -418,16 +415,16 @@ window.addEventListener('message', function(event) {
 
     add_submenu_page(
         'recompal-settings',                    // Parent slug
-        __('Conversation', 'recompal'),            // Page title
-        __('Conversation', 'recompal'),            // Menu title
+        esc_html__('Conversation', 'recompal'),            // Page title
+        esc_html__('Conversation', 'recompal'),            // Menu title
         'manage_options',                       // Capability
         'recompal-conversation',          
         function () {
             if (!current_user_can('manage_options')) {
-                wp_die(__('You do not have sufficient permissions to access this page.', 'recompal'));
+                wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'recompal'));
             }
             $jwt_token = get_option('recompal_token');
-            $iframe_url = RECOMPAL_APP_URL . '/woocommerce/conversation?source=woocommerce&host=' . parse_url(home_url(), PHP_URL_HOST) . "&token=$jwt_token";
+            $iframe_url = RECOMPAL_APP_URL . '/woocommerce/conversation?source=woocommerce&host=' . wp_parse_url(home_url(), PHP_URL_HOST) . "&token=$jwt_token";
             ?>
 <div class="recompal-dashboard">
     <iframe src="<?php echo esc_url($iframe_url); ?>" style="width: 100%; height: 100vh; border: none;"
@@ -440,16 +437,16 @@ window.addEventListener('message', function(event) {
 
     add_submenu_page(
         'recompal-settings',                    // Parent slug
-        __('DataSource', 'recompal'),            // Page title
-        __('DataSource', 'recompal'),            // Menu title
+        esc_html__('DataSource', 'recompal'),            // Page title
+        esc_html__('DataSource', 'recompal'),            // Menu title
         'manage_options',                       // Capability
         'recompal-analytics',                   // Menu slug
         function () {
             if (!current_user_can('manage_options')) {
-                wp_die(__('You do not have sufficient permissions to access this page.', 'recompal'));
+                wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'recompal'));
             }
             $jwt_token = get_option('recompal_token');
-            $iframe_url = RECOMPAL_APP_URL . '/woocommerce/datasource?source=woocommerce&host=' . parse_url(home_url(), PHP_URL_HOST) . "&token=$jwt_token";
+            $iframe_url = RECOMPAL_APP_URL . '/woocommerce/datasource?source=woocommerce&host=' . wp_parse_url(home_url(), PHP_URL_HOST) . "&token=$jwt_token";
             ?>
 <div class="recompal-datasource">
     <iframe src="<?php echo esc_url($iframe_url); ?>" style="width: 100%; height: 100vh; border: none;"
@@ -462,16 +459,16 @@ window.addEventListener('message', function(event) {
 
     add_submenu_page(
         'recompal-settings',                    // Parent slug
-        __('Billing & Plan', 'recompal'),             // Page title
-        __('Billing & Plan', 'recompal'),             // Menu title
+        esc_html__('Billing & Plan', 'recompal'),             // Page title
+        esc_html__('Billing & Plan', 'recompal'),             // Menu title
         'manage_options',                       // Capability
         'recompal-config',                      // Menu slug
         function () {
             if (!current_user_can('manage_options')) {
-                wp_die(__('You do not have sufficient permissions to access this page.', 'recompal'));
+                wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'recompal'));
             }
             $jwt_token = get_option('recompal_token');
-            $iframe_url = RECOMPAL_APP_URL . '/woocommerce/subscription?source=woocommerce&host=' . parse_url(home_url(), PHP_URL_HOST) . "&token=$jwt_token";
+            $iframe_url = RECOMPAL_APP_URL . '/woocommerce/subscription?source=woocommerce&host=' . wp_parse_url(home_url(), PHP_URL_HOST) . "&token=$jwt_token";
             ?>
 <div class="recompal-billing">
     <iframe src="<?php echo esc_url($iframe_url); ?>" style="width: 100%; height: 100vh; border: none;"
@@ -484,16 +481,16 @@ window.addEventListener('message', function(event) {
 
     add_submenu_page(
         'recompal-settings',                    // Parent slug
-        __('Help & Support', 'recompal'),       // Page title
-        __('Help & Support', 'recompal'),       // Menu title
+        esc_html__('Help & Support', 'recompal'),       // Page title
+        esc_html__('Help & Support', 'recompal'),       // Menu title
         'manage_options',                       // Capability
         'recompal-support',                     // Menu slug
         function () {
             if (!current_user_can('manage_options')) {
-                wp_die(__('You do not have sufficient permissions to access this page.', 'recompal'));
+                wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'recompal'));
             }
             $jwt_token = get_option('recompal_token');
-            $iframe_url = RECOMPAL_APP_URL . '/woocommerce/help?source=woocommerce&host=' . parse_url(home_url(), PHP_URL_HOST) . "&token=$jwt_token";
+            $iframe_url = RECOMPAL_APP_URL . '/woocommerce/help?source=woocommerce&host=' . wp_parse_url(home_url(), PHP_URL_HOST) . "&token=$jwt_token";
             ?>
 <div class="recompal-support">
     <iframe src="<?php echo esc_url($iframe_url); ?>" style="width: 100%; height: 100vh; border: none;"
