@@ -318,7 +318,7 @@ register_activation_hook(__FILE__, function () {
             sprintf(
                 /* translators: %d: HTTP error code from the server */
                 esc_html__('Recompal server returned error (code: %d). Please try again later or contact support.', 'recompal'),
-                $response_code
+                absint($response_code)
             ),
             esc_html__('Registration Error', 'recompal'),
             array('back_link' => true)
