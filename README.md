@@ -18,7 +18,6 @@ Recompal is an AI-powered sales assistant plugin for WooCommerce that helps stor
 - ⚡ **Real-time Product Sync** - Automatic catalog synchronization
 - 📊 **Analytics Dashboard** - Track conversations and insights
 - 🎨 **Customizable Appearance** - Match your brand identity
-- 🌐 **Multi-language Ready** - i18n support built-in
 
 ## Requirements
 
