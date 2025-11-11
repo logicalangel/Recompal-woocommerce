@@ -1,0 +1,70 @@
+# Copyright (C) 2025 Recompal
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Recompal 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/recompal\n"
+"POT-Creation-Date: 2025-11-11 00:00+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2025-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: en\n"
+
+#: recompal.php:207
+msgid "Recompal requires WooCommerce to be installed and active. Please install and activate WooCommerce first."
+msgstr ""
+
+#: recompal.php:208
+msgid "Plugin Activation Error"
+msgstr ""
+
+#: recompal.php:238
+msgid "Failed to create WooCommerce API key. Please try again or contact support."
+msgstr ""
+
+#: recompal.php:239
+msgid "Database Error"
+msgstr ""
+
+#: recompal.php:294
+msgid "Cannot register shop with Recompal: %s. Please check your internet connection and try again."
+msgstr ""
+
+#: recompal.php:298
+msgid "Registration Error"
+msgstr ""
+
+#: recompal.php:313
+msgid "Recompal server returned error (code: %d). Please try again later or contact support."
+msgstr ""
+
+#: recompal.php:334
+msgid "Invalid response from Recompal server. Please try again later or contact support."
+msgstr ""
+
+#: recompal.php:347
+msgid "Recompal"
+msgstr ""
+
+#: recompal.php:355
+msgid "Appearance"
+msgstr ""
+
+#: recompal.php:372
+msgid "Conversation"
+msgstr ""
+
+#: recompal.php:389
+msgid "DataSource"
+msgstr ""
+
+#: recompal.php:406
+msgid "Billing & Plan"
+msgstr ""
+
+#: recompal.php:423
+msgid "Help & Support"
+msgstr ""
