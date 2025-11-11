@@ -23,7 +23,7 @@
 defined('ABSPATH') || exit;
 
 // Configuration Constants
-define('RECOMPAL_API_URL', 'https://api.recompal.com');
+define('RECOMPAL_API_URL', 'https://app.recompal.com/api');
 define('RECOMPAL_APP_URL', 'https://app.recompal.com');
 
 // Load plugin text domain for translations
